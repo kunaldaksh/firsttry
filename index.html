@@ -31,13 +31,17 @@
         const timerElement = document.getElementById('timer');
         const readyLink = document.getElementById('ready-link');
         const linkElement = document.getElementById('link');
+        
+        // Unique ID is extracted from the URL (last part of the URL path)
         const uniqueId = window.location.pathname.split('/').pop();
 
-        // Fetch the original link from the backend using the unique ID
+        // Fetch the original link from the Replit Flask backend
         async function fetchLink() {
             try {
-                const response = await fetch(`/get-link/${uniqueId}`);
+                // Use your Replit domain here (replace 'your-replit-app' with your actual replit app name)
+                const response = await fetch(`https://fae8a93d-69ef-41fd-8ac8-4756aa57ac72-00-382p6c5dft87j.sisko.replit.dev/get-link/${uniqueId}`);
                 const data = await response.json();
+                
                 if (data.link) {
                     linkElement.href = data.link;  // Set the original link in the anchor tag
                 } else {
@@ -49,13 +53,13 @@
             }
         }
 
-        // Countdown timer
+        // Countdown timer function
         const countdown = setInterval(() => {
             if (timeLeft <= 0) {
                 clearInterval(countdown);
                 timerElement.textContent = "0 Seconds";
                 readyLink.style.display = "block";  // Show the ready link
-                fetchLink();  // Fetch the original link from the server when the timer ends
+                fetchLink();  // Fetch the original link when the timer ends
             } else {
                 timerElement.textContent = `${timeLeft} Seconds`;
             }

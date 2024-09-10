@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ModiJiUrl.com</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #f4f4f9; padding: 80px 0; }
+        .header { background: #3f51b5; color: white; padding: 20px; font-size: 28px; position: fixed; top: 0; width: 100%; }
+        .container { text-align: center; margin-top: 80px; }
+        .message, .timer { margin-bottom: 20px; }
+        .wait-btn { opacity: 0.6; cursor: not-allowed; }
+        .ready-link { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header">ModiJiUrl.com</div>
+    <div class="container">
+        <div class="message">Your link is almost ready.</div>
+        <div class="timer" id="timer">10 Seconds</div>
+        <button class="wait-btn" disabled>PLEASE WAIT...</button>
+        <div class="ready-link" id="ready-link">
+            <p>Your link is ready: <a id="link" href="#" target="_blank">Click here</a></p>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 10;
+        const timerElement = document.getElementById('timer');
+        const readyLink = document.getElementById('ready-link');
+        const linkElement = document.getElementById('link');
+        const uniqueId = window.location.pathname.split('/').pop();
+
+        async function fetchLink() {
+            const response = await fetch(`/get-link/${uniqueId}`);
+            const data = await response.json();
+            linkElement.href = data.link || "#";
+        }
+
+        const countdown = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerElement.textContent = "0 Seconds";
+                fetchLink();
+                readyLink.style.display = "block";
+            } else {
+                timerElement.textContent = `${timeLeft} Seconds`;
+            }
+            timeLeft--;
+        }, 1000);
+    </script>
+
+</body>
+</html>

@@ -33,18 +33,29 @@
         const linkElement = document.getElementById('link');
         const uniqueId = window.location.pathname.split('/').pop();
 
+        // Fetch the original link from the backend using the unique ID
         async function fetchLink() {
-            const response = await fetch(`/get-link/${uniqueId}`);
-            const data = await response.json();
-            linkElement.href = data.link || "#";
+            try {
+                const response = await fetch(`/get-link/${uniqueId}`);
+                const data = await response.json();
+                if (data.link) {
+                    linkElement.href = data.link;  // Set the original link in the anchor tag
+                } else {
+                    linkElement.textContent = "Error: Link not found.";
+                }
+            } catch (error) {
+                console.error("Error fetching link:", error);
+                linkElement.textContent = "Error fetching link.";
+            }
         }
 
+        // Countdown timer
         const countdown = setInterval(() => {
             if (timeLeft <= 0) {
                 clearInterval(countdown);
                 timerElement.textContent = "0 Seconds";
-                fetchLink();
-                readyLink.style.display = "block";
+                readyLink.style.display = "block";  // Show the ready link
+                fetchLink();  // Fetch the original link from the server when the timer ends
             } else {
                 timerElement.textContent = `${timeLeft} Seconds`;
             }

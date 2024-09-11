@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Generator</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #282c34;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 8px;
+        }
+
+        .timer {
+            font-size: 2rem;
+            margin: 20px 0;
+        }
+
+        .link-ready {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .link-ready a {
+            color: #61dafb;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .link-ready a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your link is almost ready.</h1>
+        <div class="timer" id="timer">10</div>
+        <div class="link-ready" id="linkReady">
+            <p>Your link is ready: <a href="#" id="clickHereLink">Click here</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Countdown timer
+        let countdown = 10;
+        const timerElement = document.getElementById('timer');
+        const linkReadyElement = document.getElementById('linkReady');
+        const clickHereLink = document.getElementById('clickHereLink');
+
+        // Get unique ID from the URL fragment (after the #)
+        const urlHash = window.location.hash.substring(1); // Extract unique ID from fragment after #
+
+        const fetchLinkFromDB = async (uniqueId) => {
+            try {
+                // Send a request to your backend to get the original link by uniqueId
+                const response = await fetch(`/fetch-link/${uniqueId}`);
+                const data = await response.json();
+
+                // If the link exists in MongoDB, set the href of the anchor tag
+                if (data && data.link) {
+                    clickHereLink.href = data.link; // Set the link to the original URL
+                } else {
+                    alert('Link not found!');
+                }
+            } catch (error) {
+                console.error('Error fetching link from DB:', error);
+                alert('Failed to retrieve the link!');
+            }
+        };
+
+        const startCountdown = () => {
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                timerElement.textContent = countdown;
+
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    linkReadyElement.style.display = 'block';
+
+                    // Fetch the original link from MongoDB when the timer ends
+                    fetchLinkFromDB(urlHash);
+                }
+            }, 1000);
+        };
+
+        startCountdown();
+
+        // Prevent opening a non-existent link if it was not fetched correctly
+        clickHereLink.addEventListener('click', (e) => {
+            if (!clickHereLink.href.includes('http')) {
+                e.preventDefault(); // Stop the link from redirecting if it's not set
+                alert('Link not available!');
+            }
+        });
+    </script>
+
+
+
+</body>
+</html>
